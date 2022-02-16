@@ -42,6 +42,10 @@
         }
     }
 
+    // check if user releases the arrow keys and set the ball's color back to white
+
+
+
     // this will let the user control the ball with the mouse
     document.onmousemove = function (e) {
         var x = e.clientX - document.getElementById("ball").offsetLeft;
@@ -49,11 +53,45 @@
         moveBall(x, y);
     }
 
+
+    //global ripple outline gradient variables
+    var rippleOutlineGradient = "none";
+
     // this will move the ball to the specified location
     function moveBall(x, y) {
         var ball = document.getElementById("ball");
-        ball.style.left = (ball.offsetLeft + x) + "px";
-        ball.style.top = (ball.offsetTop + y) + "px";
+
+        // save the current position of the ball
+        var ballLeft = ball.offsetLeft;
+        var ballTop = ball.offsetTop;
+
+
+        ball.style.left = (ball.offsetLeft + (x / 8)) + "px";
+        ball.style.top = (ball.offsetTop + (y / 8)) + "px";
+
+        // calculate the difference between the current position of the ball and the saved position
+        var deltaX = ball.offsetLeft - ballLeft;
+        var deltaY = ball.offsetTop - ballTop;
+
+
+        // if ball moves up, set the ripple gradient top to blue and bottom to red
+        if (deltaY < 0) {
+            rippleOutlineGradient = "up";
+        }
+        // else if the ball moves down, set the ripple gradient top to red and bottom to blue
+        else if (deltaY > 0) {
+            rippleOutlineGradient = "down";
+        }
+        // else if the ball moves left, set the ripple gradient left to blue and right to red
+        if (deltaX < 0) {
+            rippleOutlineGradient = "left";
+        }
+        // else if the ball moves right, set the ripple gradient left to red and right to blue
+        else if (deltaX > 0) {
+            rippleOutlineGradient = "right";
+        }
+
+
     }
 
     // this will reset the ball to the center of the canvas
@@ -63,15 +101,48 @@
             ball.style.left = (document.getElementById("canvas").offsetWidth / 2 - ball.offsetWidth / 2) + "px";
             ball.style.top = (document.getElementById("canvas").offsetHeight / 2 - ball.offsetHeight / 2) + "px";
         }
+        if (e.keyCode == 37 || e.keyCode == 38 || e.keyCode == 39 || e.keyCode == 40) {
+            document.getElementById("ball").style.backgroundImage = "linear-gradient(to right, #fff, #fff)";
+            // change the ripple gradient back to white
+            rippleOutlineGradient = "none";
+            //make opacity of ball back to full
+            document.getElementById("ball").style.opacity = "1";
+
+        }
+        if (e.keyCode == 84) {
+            toggle = 1;
+        }
     }
 
 
     // create a div at the position of the ball with a white border that expands until it's larger than the canvas
     function createDiv(x, y) {
         var div = document.createElement("div");
-        div.id = "ripple";
+        // if the rippleGradient is none, set the id to ripple
+        if (rippleOutlineGradient == "none") {
+            div.id = "ripple";
+        }
+        // else if the rippleGradient is up, set the id to rippleUp
+        else if (rippleOutlineGradient == "up") {
+            div.id = "rippleUp";
+        }
+        // else if the rippleGradient is down, set the id to rippleDown
+        else if (rippleOutlineGradient == "down") {
+            div.id = "rippleDown";
+        }
+        // else if the rippleGradient is left, set the id to rippleLeft
+        else if (rippleOutlineGradient == "left") {
+            div.id = "rippleLeft";
+        }
+        // else if the rippleGradient is right, set the id to rippleRight
+        else if (rippleOutlineGradient == "right") {
+            div.id = "rippleRight";
+        }
+
         div.style.left = x + "px";
         div.style.top = y + "px";
+        //set the ripple's border to the ripple outline gradient
+        div.style.border = "1px solid " + rippleOutlineGradient;
         document.getElementById("canvas").appendChild(div);
         return div;
     }
@@ -88,7 +159,7 @@
             divArray.push(createDiv(x, y));
 
             // if div array is > 4, remove the first div in the array
-            if (divArray.length > 4) {
+            if (divArray.length > 12) {
                 // remove the first div from the canvas
                 document.getElementById("canvas").removeChild(divArray[0]);
                 // remove the first div from the array
@@ -97,12 +168,7 @@
         }
     }, 250);
 
-    // change toggle when t is pressed
-    document.onkeyup = function (e) {
-        if (e.keyCode == 84) {
-            toggle = 1;
-        }
-    }
+
 
     //when the ball is cliked, create a ripple div
     document.getElementById("canvas").onclick = function () {
@@ -153,8 +219,8 @@
         position: absolute;
         top: 50%;
         left: 50%;
-        width: 50px;
-        height: 50px;
+        width: 25px;
+        height: 25px;
         background-color: #fff;
         border-radius: 50%;
         transform: translate(-50%, -50%);
@@ -165,14 +231,61 @@
     }
 
     #ripple {
-        border: 1px solid;
-        border-radius: 50%;
-        animation: ripple 1s linear;
+        border: 1px solid #fff;
+        /* border-radius: 50%; */
+        animation: ripple 8s linear;
         position: absolute;
         animation-iteration-count: 1;
         transform: translate(-50%, -50%);
-        border-color: white;
         opacity: 1;
+    }
+
+    #rippleRight {
+        border: 1px solid;
+        border-radius: 50%;
+        animation: ripple 8s linear;
+        position: absolute;
+        animation-iteration-count: 1;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+        border-image: linear-gradient(to right, #ff0000 0%, #0000ff 100%) 1 round;
+        border-image-slice: 1;
+    }
+
+    #rippleLeft {
+        border: 1px solid;
+        border-radius: 50%;
+        animation: ripple 8s linear;
+        position: absolute;
+        animation-iteration-count: 1;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+        border-image: linear-gradient(to right, #0000ff 0%, #ff0000 100%) 1 round;
+        border-image-slice: 1;
+    }
+
+    #rippleUp {
+        border: 1px solid;
+        border-radius: 50%;
+        animation: ripple 8s linear;
+        position: absolute;
+        animation-iteration-count: 1;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+        border-image: linear-gradient(#0000ff 0%, #ff0000 100%) 1 round;
+        border-image-slice: 1;
+    }
+
+    #rippleDown {
+        border: 1px solid;
+        border-radius: 50%;
+        animation: ripple 8s linear;
+        position: absolute;
+        animation-iteration-count: 1;
+        transform: translate(-50%, -50%);
+        opacity: 1;
+        border-image: linear-gradient(#ff0000 0%, #0000ff 100%) 1 round;
+        border-image-slice: 1;
     }
 
     @keyframes ripple {

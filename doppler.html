@@ -1,0 +1,193 @@
+<!--Doctype HTML-->
+
+<html>
+
+<head>
+
+</head>
+
+<body>
+
+
+    <div id="canvas">
+        <p id="instructions">
+            This is an example of the doppler effect in HTML using css styles.
+            <br>
+            You can use the arrow keys or the mouse to move the ball across the canvas.
+            <br>
+            press enter to reset the ball to the center of the canvas.
+        </p>
+        <div id="ball">
+
+        </div>
+    </div>
+
+</body>
+<script>
+    // this will let the user control the ball with the arrow keys
+    document.onkeydown = function (e) {
+        switch (e.keyCode) {
+            case 37:
+                moveBall(-10, 0);
+                break;
+            case 38:
+                moveBall(0, -10);
+                break;
+            case 39:
+                moveBall(10, 0);
+                break;
+            case 40:
+                moveBall(0, 10);
+                break;
+        }
+    }
+
+    // this will let the user control the ball with the mouse
+    document.onmousemove = function (e) {
+        var x = e.clientX - document.getElementById("ball").offsetLeft;
+        var y = e.clientY - document.getElementById("ball").offsetTop;
+        moveBall(x, y);
+    }
+
+    // this will move the ball to the specified location
+    function moveBall(x, y) {
+        var ball = document.getElementById("ball");
+        ball.style.left = (ball.offsetLeft + x) + "px";
+        ball.style.top = (ball.offsetTop + y) + "px";
+    }
+
+    // this will reset the ball to the center of the canvas
+    document.onkeyup = function (e) {
+        if (e.keyCode == 13) {
+            var ball = document.getElementById("ball");
+            ball.style.left = (document.getElementById("canvas").offsetWidth / 2 - ball.offsetWidth / 2) + "px";
+            ball.style.top = (document.getElementById("canvas").offsetHeight / 2 - ball.offsetHeight / 2) + "px";
+        }
+    }
+
+
+    // create a div at the position of the ball with a white border that expands until it's larger than the canvas
+    function createDiv(x, y) {
+        var div = document.createElement("div");
+        div.id = "ripple";
+        div.style.left = x + "px";
+        div.style.top = y + "px";
+        document.getElementById("canvas").appendChild(div);
+        return div;
+    }
+
+    let divArray = [];
+    let toggle = 0;
+
+    // loop for every second to create new ripple divs
+    setInterval(function () {
+        if (toggle != 1) {
+            var ball = document.getElementById("ball");
+            var x = ball.offsetLeft;
+            var y = ball.offsetTop;
+            divArray.push(createDiv(x, y));
+
+            // if div array is > 4, remove the first div in the array
+            if (divArray.length > 4) {
+                // remove the first div from the canvas
+                document.getElementById("canvas").removeChild(divArray[0]);
+                // remove the first div from the array
+                divArray.shift();
+            }
+        }
+    }, 250);
+
+    // change toggle when t is pressed
+    document.onkeyup = function (e) {
+        if (e.keyCode == 84) {
+            toggle = 1;
+        }
+    }
+
+    //when the ball is cliked, create a ripple div
+    document.getElementById("canvas").onclick = function () {
+        console.log("clicked");
+        var ball = document.getElementById("ball");
+        var x = ball.offsetLeft;
+        var y = ball.offsetTop;
+
+        console.log(x, y);
+        createDiv(x, y);
+    }
+
+</script>
+<style>
+    body {
+        overflow: hidden;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #instructions {
+        font-size: 1.5em;
+        font-family: sans-serif;
+        color: #fff;
+        text-align: center;
+        margin-top: 10%;
+        height: 50%;
+        width: 100%;
+    }
+
+    #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+    }
+
+    #ball {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 50px;
+        height: 50px;
+        background-color: #fff;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #ball:hover {
+        cursor: none;
+    }
+
+    #ripple {
+        border: 1px solid;
+        border-radius: 50%;
+        animation: ripple 1s linear;
+        position: absolute;
+        animation-iteration-count: 1;
+        transform: translate(-50%, -50%);
+        border-color: white;
+        opacity: 1;
+    }
+
+    @keyframes ripple {
+        0% {
+            width: 1px;
+            height: 1px;
+            opacity: 1;
+        }
+
+        100% {
+            width: 1000px;
+            height: 1000px;
+            transform: translate(-50%, -50%);
+        }
+    }
+</style>
+
+</html>
